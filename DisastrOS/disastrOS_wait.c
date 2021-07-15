@@ -29,7 +29,7 @@ void internal_wait(){
       break;
     aux=aux->next;
   }
-  
+
   // if we were looking for a process not in child list
   // we need to return an error
   if(pid_to_wait>0){

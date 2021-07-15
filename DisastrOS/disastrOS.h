@@ -27,7 +27,14 @@ int disastrOS_wait(int pid, int* retval);
 void disastrOS_preempt();
 void disastrOS_spawn(void (*f)(void*), void* args );
 void disastrOS_shutdown();
+
+// timers
 void disastrOS_sleep(int);
+
+// respurces (files)
+int disastrOS_openResource(int resource_id, int type, int mode);
+int disastrOS_closeResource(int fd) ;
+int disastrOS_destroyResource(int resource_id);
 
 // debug function, prints the state of the internal system
 void disastrOS_printStatus();

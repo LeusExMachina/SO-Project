@@ -9,6 +9,8 @@
 #include "disastrOS.h"
 #include "disastrOS_syscalls.h"
 #include "disastrOS_timer.h"
+#include "disastrOS_resource.h"
+#include "disastrOS_descriptor.h"
 
 FILE* log_file=NULL;
 PCB* init_pcb;
@@ -35,6 +37,7 @@ char system_stack[STACK_SIZE];
 sigset_t signal_set;                       // process wide signal mask 
 char signal_stack[STACK_SIZE];     
 volatile int disastrOS_time=0;
+
 
 void timerHandler(int j, siginfo_t *si, void *old_context) {
   swapcontext(&running->cpu_state, &interrupt_context);
@@ -112,11 +115,11 @@ void disastrOS_trap(){
     running->syscall_retvalue = DSOS_ESYSCALL_NOT_IMPLEMENTED;
     goto return_to_process;
   }
+ 
   disastrOS_debug("syscall: %d, pid: %d\n", syscall_num, running->pid);
-  (*syscall_vector[syscall_num])();
+  (*my_syscall)();
   //internal_schedule();
  return_to_process:
-  
   if (log_file)
     fprintf(log_file, "TIME: %d\tPID: %d\tACTION: %s %d\n",
 	    disastrOS_time,
@@ -136,6 +139,8 @@ void disastrOS_start(void (*f)(void*), void* f_args, char* logfile){
   disastrOS_debug("initializing system structures\n");
   PCB_init();
   Timer_init();
+  Resource_init();
+  Descriptor_init();
   init_pcb=0;
 
   // populate the vector of syscalls and number of arguments for each syscall
@@ -160,6 +165,15 @@ void disastrOS_start(void (*f)(void*), void* f_args, char* logfile){
   syscall_vector[DSOS_CALL_SLEEP]     = internal_sleep;
   syscall_numarg[DSOS_CALL_SLEEP]     = 1;
 
+  syscall_vector[DSOS_CALL_OPEN_RESOURCE]     = internal_openResource;
+  syscall_numarg[DSOS_CALL_OPEN_RESOURCE]     = 3;
+
+  syscall_vector[DSOS_CALL_CLOSE_RESOURCE]     = internal_closeResource;
+  syscall_numarg[DSOS_CALL_CLOSE_RESOURCE]     = 1;
+
+  syscall_vector[DSOS_CALL_DESTROY_RESOURCE]     = internal_destroyResource;
+  syscall_numarg[DSOS_CALL_DESTROY_RESOURCE]     = 1;
+
   syscall_vector[DSOS_CALL_SHUTDOWN]      = internal_shutdown;
   syscall_numarg[DSOS_CALL_SHUTDOWN]      = 0;
 
@@ -167,7 +181,7 @@ void disastrOS_start(void (*f)(void*), void* f_args, char* logfile){
   running=0;
   List_init(&ready_list);
   List_init(&waiting_list);
-    List_init(&zombie_list);
+  List_init(&zombie_list);
   List_init(&resources_list);
   List_init(&timer_list);
 
@@ -177,14 +191,14 @@ void disastrOS_start(void (*f)(void*), void* f_args, char* logfile){
   getcontext(&main_context); //<< we will come back here on shutdown
   if (shutdown_now)
     exit(0);
-  
+
   // setting system trap
   disastrOS_debug("setting entry point for system trap... ");
   getcontext(&trap_context);
   trap_context.uc_stack.ss_sp = system_stack;
   trap_context.uc_stack.ss_size = STACK_SIZE;
   sigemptyset(&trap_context.uc_sigmask);
-  sigaddset(&trap_context.uc_sigmask, SIGALRM);
+  sigaddset(&trap_context.uc_sigmask, SIGALRM); //< this disables alarm during system trap
   trap_context.uc_stack.ss_flags = 0;
   trap_context.uc_link = &main_context;
   makecontext(&trap_context, disastrOS_trap, 0); //<< this extablishes a context for the system
@@ -260,6 +274,20 @@ int disastrOS_getpid(){
   return running->pid;
 }
 
+int disastrOS_openResource(int resource_id, int type, int mode) {
+  return disastrOS_syscall(DSOS_CALL_OPEN_RESOURCE, resource_id, type, mode);
+}
+
+int disastrOS_closeResource(int fd) {
+  return disastrOS_syscall(DSOS_CALL_CLOSE_RESOURCE, fd);
+}
+
+int disastrOS_destroyResource(int resource_id) {
+  return disastrOS_syscall(DSOS_CALL_DESTROY_RESOURCE, resource_id);
+}
+
+
+
 void disastrOS_printStatus(){
   printf("****************** DisastrOS ******************\n");
   printf("Running: ");
@@ -268,6 +296,8 @@ void disastrOS_printStatus(){
   printf("\n");
   printf("Timers: ");
   TimerList_print(&timer_list);
+  printf("\nResources: ");
+  ResourceList_print(&resources_list);
   printf("\nReady: ");
   PCBList_print(&ready_list);
   printf("\nWaiting: ");

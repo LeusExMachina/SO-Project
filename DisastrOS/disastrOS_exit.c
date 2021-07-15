@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "disastrOS.h"
 #include "disastrOS_syscalls.h"
+#include "disastrOS_descriptor.h"
 
 // called upon termination
 // moves the process to a zombie status
@@ -29,6 +30,9 @@ void internal_exit(){
     PCBPtr* pcb_ptr=(PCBPtr*) item;
     PCB* pcb=pcb_ptr->pcb;
     pcb->signals |= (DSOS_SIGHUP & pcb->signals_mask);
+
+    //change child parent
+    pcb->parent = init_pcb;
   }
 
   running->status=Zombie;
@@ -68,6 +72,16 @@ void internal_exit(){
 	assert(detach_result);
 	TimerItem_free(timer);
       }
+    }
+
+    // we release all resources of a process upon termination
+    while(running->descriptors.first) {
+      Descriptor* des=(Descriptor*) running->descriptors.first;
+      List_detach(&running->descriptors, (ListItem*) des);
+      Resource* res=des->resource;
+      List_detach(&res->descriptors_ptrs, (ListItem*) des->ptr);
+      DescriptorPtr_free(des->ptr);
+      Descriptor_free(des);
     }
     
     // the process finally dies

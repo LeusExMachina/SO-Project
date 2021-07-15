@@ -46,6 +46,7 @@ PCB* PCB_alloc() {
   pcb->pid=last_pid; last_pid++;
   pcb->return_value=0;
   pcb->status=Invalid;
+  pcb->last_fd=0;
   pcb->signals=0;
   pcb->signals_mask=0xFFFFFFFF;
   pcb->status=Invalid;
@@ -53,10 +54,7 @@ PCB* PCB_alloc() {
   pcb->parent=0;
   pcb->timer=0;
   List_init(&pcb->children);
-  //MemoryInfo_init(&pcb->memory);
-  //CPUState_init(&pcb->cpu);
-
-   return pcb;
+  return pcb;
 }
 
 int PCB_free(PCB* pcb){

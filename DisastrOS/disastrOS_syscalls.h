@@ -18,3 +18,9 @@ void internal_shutdown();
 void internal_schedule();
 
 void internal_sleep();
+
+void internal_openResource();
+
+void internal_closeResource();
+
+void internal_destroyResource();

@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <signal.h>
 #include "disastrOS.h"
 #include "disastrOS_syscalls.h"
 

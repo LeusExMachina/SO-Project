@@ -20,12 +20,17 @@ typedef struct PCB{
   ProcessStatus status;
   int signals;
   int signals_mask;
-  ListHead descriptors;
   struct PCB* parent;
   ListHead children;
   ucontext_t cpu_state;
+  // timers
   struct TimerItem *timer;
 
+  // descriptors (for all resources)
+  int last_fd;
+  ListHead descriptors;
+  
+  
   //we are really rude :) the stack is INSIDE the pcb
   //forgive me for the bestiality
   char stack[STACK_SIZE];
