@@ -31,7 +31,7 @@ Message* Message_alloc(){
     res->list.prev = 0;
     res->list.next = 0;
 
-    memset(&res->message, 0, MAX_MESSAGE_LEN);
+    memset(res->message, 0, MAX_MESSAGE_LEN);
 
     return res;
 }
@@ -41,9 +41,9 @@ int Message_free(Message* msg){
 }
 
 void Message_write(char* string, Message* msg){
-    memcpy(&msg->message, string, MAX_MESSAGE_LEN);
+    strcpy(msg->message, string);
 }
 
 void Message_read(char* string, Message* msg){
-    memcpy(string, &msg->message, MAX_MESSAGE_LEN);
+    strcpy(string, msg->message);
 }
