@@ -49,3 +49,6 @@
 // scheduling
 #define ALPHA 0.5f
 #define INTERVAL 100 // milliseconds for timer tick
+
+//message queues
+#define MAX_NUM_MESSAGES 32
