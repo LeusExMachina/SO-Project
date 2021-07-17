@@ -52,3 +52,6 @@
 
 //message queues
 #define MAX_NUM_MESSAGES 32
+#define MAX_NUM_MESSAGEQUEUES 1024
+
+#define RES_MQ 0x1

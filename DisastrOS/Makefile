@@ -8,6 +8,7 @@ HEADERS=disastrOS.h\
 	disastrOS_globals.h\
 	disastrOS_pcb.h\
 	disastrOS_resource.h\
+     disastrOS_messagequeue.h\
      disastrOS_message.h\
 	disastrOS_syscalls.h\
 	disastrOS_timer.h\
@@ -20,6 +21,7 @@ OBJS=pool_allocator.o\
      disastrOS_pcb.o\
      disastrOS_resource.o\
      disastrOS_descriptor.o\
+     disastrOS_messagequeue.o\
      disastrOS_message.o\
      disastrOS.o\
      disastrOS_fork.o\
