@@ -5,6 +5,7 @@
 #include "disastrOS_syscalls.h"
 #include "disastrOS_resource.h"
 #include "disastrOS_descriptor.h"
+#include "disastrOS_messagequeue.h"
 
 
 void internal_openResource(){
@@ -24,7 +25,12 @@ void internal_openResource(){
       running->syscall_retvalue=DSOS_ERESOURCECREATE;
       return;
     }
-    res=Resource_alloc(id, type);
+    if(type == RES_MQ){
+      res = (Resource*) MessageQueue_alloc(id);
+    }
+    else{
+      res=Resource_alloc(id, type);
+    }
     List_insert(&resources_list, resources_list.last, (ListItem*) res);
   }
 

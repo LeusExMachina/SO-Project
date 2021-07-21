@@ -31,10 +31,15 @@ void disastrOS_shutdown();
 // timers
 void disastrOS_sleep(int);
 
-// respurces (files)
+// resources (files)
 int disastrOS_openResource(int resource_id, int type, int mode);
 int disastrOS_closeResource(int fd) ;
 int disastrOS_destroyResource(int resource_id);
 
 // debug function, prints the state of the internal system
 void disastrOS_printStatus();
+
+// message queues
+int disastrOS_openMQ(int mq_id, int mode);
+int disastrOS_closeMQ(int fd);
+int disastrOS_destroyMQ(int mq_id);

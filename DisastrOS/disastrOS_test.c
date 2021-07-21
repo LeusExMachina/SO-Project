@@ -4,6 +4,11 @@
 
 #include "disastrOS.h"
 
+//to remove
+/*#include "disastrOS_resource.h"
+#include "disastrOS_messagequeue.h"
+#include "disastrOS_globals.h"*/
+
 
 // we need this to handle the sleep state
 void sleeperFunction(void* args){
@@ -17,7 +22,7 @@ void sleeperFunction(void* args){
 void childFunction(void* args){
   printf("Hello, I am the child function %d\n",disastrOS_getpid());
   printf("I will iterate a bit, before terminating\n");
-  int type=0;
+  int type= 0;
   int mode=0;
   int fd=disastrOS_openResource(disastrOS_getpid(),type,mode);
   printf("fd=%d\n", fd);
@@ -36,6 +41,15 @@ void initFunction(void* args) {
   printf("hello, I am init and I just started\n");
   disastrOS_spawn(sleeperFunction, 0);
   
+  /*int fd = disastrOS_openMQ(0, DSOS_CREATE);
+  Resource* res = ResourceList_byId(&resources_list, 0);
+  MessageQueue* mq = (MessageQueue*) res;
+
+  ListHead i = mq->messages;
+
+
+  disastrOS_closeMQ(fd);
+  disastrOS_destroyMQ(0);*/
 
   printf("I feel like to spawn 10 nice threads\n");
   int alive_children=0;
@@ -75,5 +89,5 @@ int main(int argc, char** argv){
   // spawn an init process
   printf("start\n");
   disastrOS_start(initFunction, 0, logfilename);
-  return 0;
+  return 0; 
 }
