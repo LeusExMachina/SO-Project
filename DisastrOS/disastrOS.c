@@ -179,6 +179,12 @@ void disastrOS_start(void (*f)(void*), void* f_args, char* logfile){
   syscall_vector[DSOS_CALL_SHUTDOWN]      = internal_shutdown;
   syscall_numarg[DSOS_CALL_SHUTDOWN]      = 0;
 
+  syscall_vector[DSOS_CALL_MQREAD]        = internal_MQread;
+  syscall_numarg[DSOS_CALL_MQREAD]        = 2;
+
+  syscall_vector[DSOS_CALL_MQWRITE]       = internal_MQwrite;
+  syscall_numarg[DSOS_CALL_MQWRITE]       = 2;
+
   // setup the scheduling lists
   running=0;
   List_init(&ready_list);
@@ -298,6 +304,14 @@ int disastrOS_closeMQ(int fd){
 
 int disastrOS_destroyMQ(int mq_id){
   return disastrOS_destroyResource(mq_id);
+}
+
+int disastrOS_MQread(int fd, char* buffer){
+  return disastrOS_syscall(DSOS_CALL_MQREAD, fd, buffer);
+}
+
+int disastrOS_MQwrite(int fd, const char* buffer){
+  return disastrOS_syscall(DSOS_CALL_MQWRITE, fd, buffer);
 }
 
 void disastrOS_printStatus(){
