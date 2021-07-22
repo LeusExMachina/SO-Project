@@ -33,7 +33,7 @@ void disastrOS_sleep(int);
 
 // resources (files)
 int disastrOS_openResource(int resource_id, int type, int mode);
-int disastrOS_closeResource(int fd) ;
+int disastrOS_closeResource(int fd);
 int disastrOS_destroyResource(int resource_id);
 
 // debug function, prints the state of the internal system
@@ -43,3 +43,6 @@ void disastrOS_printStatus();
 int disastrOS_openMQ(int mq_id, int mode);
 int disastrOS_closeMQ(int fd);
 int disastrOS_destroyMQ(int mq_id);
+
+int disastrOS_MQread(int fd, char* buffer);
+int disastrOS_MQwrite(int fd, const char* buffer);

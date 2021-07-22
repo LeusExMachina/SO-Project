@@ -9,6 +9,8 @@
 #include "disastrOS_messagequeue.h"
 #include "disastrOS_globals.h"*/
 
+#include <string.h>
+
 
 // we need this to handle the sleep state
 void sleeperFunction(void* args){
@@ -41,6 +43,8 @@ void initFunction(void* args) {
   printf("hello, I am init and I just started\n");
   disastrOS_spawn(sleeperFunction, 0);
   
+  //TEST OPEN
+
   /*int fd = disastrOS_openMQ(0, DSOS_CREATE);
   Resource* res = ResourceList_byId(&resources_list, 0);
   MessageQueue* mq = (MessageQueue*) res;
@@ -50,6 +54,24 @@ void initFunction(void* args) {
 
   disastrOS_closeMQ(fd);
   disastrOS_destroyMQ(0);*/
+
+  //TEST WRITE-READ(single process)
+
+  /*int fd = disastrOS_openMQ(0, DSOS_CREATE);
+  char test[16] = "ciao come stai";
+
+  char read[1024];
+  memset(read, 0, 1024);
+
+  int res1 = disastrOS_MQwrite(fd, test);
+
+  int res2 = disastrOS_MQread(fd, read);
+
+  printf("%s\n", read);
+
+  printf("%d\n", res1);
+  printf("%d\n", res2);*/
+
 
   printf("I feel like to spawn 10 nice threads\n");
   int alive_children=0;
@@ -73,7 +95,7 @@ void initFunction(void* args) {
 	   pid, retval, alive_children);
     --alive_children;
   }
-  printf("shutdown!");
+  printf("shutdown!\n");
   disastrOS_shutdown();
 }
 

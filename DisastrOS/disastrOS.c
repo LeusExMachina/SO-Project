@@ -12,6 +12,7 @@
 #include "disastrOS_resource.h"
 #include "disastrOS_descriptor.h"
 #include "disastrOS_messagequeue.h"
+#include "disastrOS_message.h"
 
 FILE* log_file=NULL;
 PCB* init_pcb;
@@ -143,6 +144,7 @@ void disastrOS_start(void (*f)(void*), void* f_args, char* logfile){
   Resource_init();
   Descriptor_init();
   MessageQueue_init();
+  Message_init();
   init_pcb=0;
 
   // populate the vector of syscalls and number of arguments for each syscall
