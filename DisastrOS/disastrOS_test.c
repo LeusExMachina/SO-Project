@@ -3,6 +3,7 @@
 #include <poll.h>
 
 #include "disastrOS.h"
+#include "disastrOS_constants.h"
 
 //to remove
 /*#include "disastrOS_resource.h"
@@ -35,6 +36,54 @@ void childFunction(void* args){
     disastrOS_sleep((20-disastrOS_getpid())*5);
   }
   disastrOS_exit(disastrOS_getpid()+1);
+}
+
+void producerFunction(void* args){
+
+  char buffer[1024];
+  int fd = disastrOS_openMQ(0, DSOS_CREATE);
+
+  for (int i = 0; i < 10; i++){
+
+    printf("-- SONO IL PRODUCER --\n");
+
+    memset(buffer, 0, 1024);
+    strcpy(buffer, "sono il producer e comunico con il consumer");
+
+    disastrOS_MQwrite(fd, buffer);
+
+    printf("PID: %d, iterate %d\n", disastrOS_getpid(), i);
+    disastrOS_sleep((20-disastrOS_getpid())*5);
+  }
+
+  disastrOS_closeMQ(fd);
+
+  disastrOS_destroyMQ(fd);
+
+  disastrOS_exit(0);
+}
+
+void consumerFunction(void* args){
+
+  char buffer[1024];
+  int fd = disastrOS_openMQ(0, DSOS_READ);
+
+  for (int i = 0; i < 10; i++){
+
+    printf("-- SONO IL CONSUMER --\n");
+
+    memset(buffer, 0, 1024);
+
+    disastrOS_MQread(fd, buffer);
+    printf("%s\n", buffer);
+
+    printf("PID: %d, iterate %d\n", disastrOS_getpid(), i);
+    disastrOS_sleep((20-disastrOS_getpid())*5);
+  }
+
+  disastrOS_closeMQ(fd);
+
+  disastrOS_exit(0);
 }
 
 
@@ -72,7 +121,29 @@ void initFunction(void* args) {
   printf("%d\n", res1);
   printf("%d\n", res2);*/
 
+  printf("I spawn producer and consumer processes\n");
 
+  int alive_children = 0;
+
+  disastrOS_spawn(producerFunction, 0);
+  alive_children++;
+
+  disastrOS_spawn(consumerFunction, 0);
+  alive_children++;
+
+  disastrOS_printStatus();
+
+  int retval;
+  int pid;
+
+  while(alive_children>0 && (pid=disastrOS_wait(0, &retval))>=0){ 
+    disastrOS_printStatus();
+    printf("initFunction, child: %d terminated, retval:%d, alive: %d \n",
+	   pid, retval, alive_children);
+    --alive_children;
+  }
+
+  /*
   printf("I feel like to spawn 10 nice threads\n");
   int alive_children=0;
   for (int i=0; i<10; ++i) {
@@ -94,7 +165,8 @@ void initFunction(void* args) {
     printf("initFunction, child: %d terminated, retval:%d, alive: %d \n",
 	   pid, retval, alive_children);
     --alive_children;
-  }
+  }*/
+
   printf("shutdown!\n");
   disastrOS_shutdown();
 }
