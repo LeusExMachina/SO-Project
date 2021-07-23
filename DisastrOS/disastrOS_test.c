@@ -53,7 +53,7 @@ void producerFunction(void* args){
     disastrOS_MQwrite(fd, buffer);
 
     printf("PID: %d, iterate %d\n", disastrOS_getpid(), i);
-    disastrOS_sleep((20-disastrOS_getpid())*5);
+    disastrOS_sleep((20-disastrOS_getpid())*2);
   }
 
   disastrOS_closeMQ(fd);
@@ -78,7 +78,7 @@ void consumerFunction(void* args){
     printf("%s\n", buffer);
 
     printf("PID: %d, iterate %d\n", disastrOS_getpid(), i);
-    disastrOS_sleep((20-disastrOS_getpid())*5);
+    disastrOS_sleep((20-disastrOS_getpid())*2);
   }
 
   disastrOS_closeMQ(fd);

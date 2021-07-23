@@ -6,6 +6,7 @@
 #include "disastrOS_resource.h"
 #include "disastrOS_descriptor.h"
 #include "disastrOS_messagequeue.h"
+#include "disastrOS_message.h"
 
 void internal_destroyResource(){
   int id=running->syscall_args[0];
@@ -26,6 +27,16 @@ void internal_destroyResource(){
   res=(Resource*) List_detach(&resources_list, (ListItem*) res);
   assert(res);
   if (res->type == RES_MQ){
+
+    MessageQueue* mq = (MessageQueue*) res;
+    
+    while(mq->messages.first != 0){
+      ListItem* item = List_detach(&mq->messages, mq->messages.first);
+      Message* msg = (Message*) item;
+
+      Message_free(msg);
+    }
+
     MessageQueue_free((MessageQueue*) res);
   }
   else{
