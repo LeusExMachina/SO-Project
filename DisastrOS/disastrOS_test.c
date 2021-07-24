@@ -48,7 +48,7 @@ void producerFunction(void* args){
     printf("-- SONO IL PRODUCER --\n");
 
     memset(buffer, 0, 1024);
-    strcpy(buffer, "sono il producer e comunico con il consumer");
+    strcpy(buffer, "messaggio letto");
 
     disastrOS_MQwrite(fd, buffer);
 
@@ -58,7 +58,11 @@ void producerFunction(void* args){
 
   disastrOS_closeMQ(fd);
 
-  disastrOS_destroyMQ(fd);
+  int res = disastrOS_destroyMQ(fd);
+  
+  while(res == DSOS_ERESOURCEINUSE){
+	  res = disastrOS_destroyMQ(fd);
+  }
 
   disastrOS_exit(0);
 }
