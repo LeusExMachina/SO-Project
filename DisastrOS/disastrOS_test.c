@@ -49,13 +49,19 @@ void producerFunction(void* args){
   else{
     res_to_open = 0;
   }
-
-  printf("producer: %d, resource: %d\n", disastrOS_getpid(), res_to_open);
+  
+  int pid = disastrOS_getpid();
+  
+  printf("PRODUCER: %d, resource: %d\n", pid, res_to_open);
 
   char buffer[1024];
   int fd = disastrOS_openMQ(res_to_open, DSOS_CREATE);
-
-  int pid = disastrOS_getpid();
+  
+  if (fd == DSOS_ERESOURCECREATE){
+	printf("PRODUCER: %d, resource already exists. Opening\n", pid);
+	fd = disastrOS_openMQ(res_to_open, DSOS_READ);
+	printf("%d\n", fd);
+  }
 
   for (int i = 0; i < 10; i++){
 
@@ -64,19 +70,35 @@ void producerFunction(void* args){
     memset(buffer, 0, 1024);
     strcpy(buffer, "messaggio letto");
 
-    disastrOS_MQwrite(fd, buffer);
+    int test = disastrOS_MQwrite(fd, buffer);
+    
+    if (test == 0){
+	  printf("PRODUCER %d: wrote text\n", pid);
+	}
+	else{
+	  printf("PRODUCER %d: write error, code: %d\n", pid, test);
+	}
 
     printf("PID: %d, iterate %d\n", disastrOS_getpid(), i);
     disastrOS_sleep((20-disastrOS_getpid())*2);
   }
+  
+  printf("PRODUCER %d, closing resource\n", pid);
 
   disastrOS_closeMQ(fd);
+  
+  printf("PRODUCER %d, destroying resource\n", pid);
 
   int res = disastrOS_destroyMQ(res_to_open);
   
-  while(res == DSOS_ERESOURCEINUSE){
-	  res = disastrOS_destroyMQ(res_to_open);
+  if (res == DSOS_ERESOURCEINUSE){
+	printf("PRODUCER %d, destruction failed\n", pid);
   }
+  
+  /*while(res == DSOS_ERESOURCEINUSE){
+	  printf("prova\n");
+	  res = disastrOS_destroyMQ(res_to_open);
+  }*/
 
   disastrOS_exit(0);
 }
@@ -92,13 +114,15 @@ void consumerFunction(void* args){
   else{
     res_to_open = 0;
   }
-
-  printf("consumer: %d, resource: %d\n", disastrOS_getpid(), res_to_open);
+  
+  int pid = disastrOS_getpid();
+  
+  printf("consumer: %d, resource: %d\n", pid, res_to_open);
 
   char buffer[1024];
   int fd = disastrOS_openMQ(res_to_open, DSOS_READ);
 
-  int pid = disastrOS_getpid();
+  
 
   for (int i = 0; i < 10; i++){
 
@@ -166,18 +190,19 @@ void initFunction(void* args) {
 
   disastrOS_spawn(consumerFunction, &res0);
   alive_children++;
+  
 
-  disastrOS_spawn(producerFunction, &res1);
+  disastrOS_spawn(producerFunction, &res0);
   alive_children++;
 
-  disastrOS_spawn(consumerFunction, &res1);
+  disastrOS_spawn(consumerFunction, &res0);
   alive_children++;
 
 
-  disastrOS_spawn(producerFunction, &res2);
+  disastrOS_spawn(producerFunction, &res0);
   alive_children++;
 
-  disastrOS_spawn(consumerFunction, &res2);
+  disastrOS_spawn(consumerFunction, &res0);
   alive_children++;
 
   disastrOS_printStatus();
