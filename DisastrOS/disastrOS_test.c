@@ -40,12 +40,26 @@ void childFunction(void* args){
 
 void producerFunction(void* args){
 
+  int res_to_open;
+
+  if (args != NULL){
+    int* temp = (int*) args;
+    res_to_open = *temp;
+  }
+  else{
+    res_to_open = 0;
+  }
+
+  printf("producer: %d, resource: %d\n", disastrOS_getpid(), res_to_open);
+
   char buffer[1024];
-  int fd = disastrOS_openMQ(0, DSOS_CREATE);
+  int fd = disastrOS_openMQ(res_to_open, DSOS_CREATE);
+
+  int pid = disastrOS_getpid();
 
   for (int i = 0; i < 10; i++){
 
-    printf("-- SONO IL PRODUCER --\n");
+    printf("-- SONO IL PRODUCER %d --\n", pid);
 
     memset(buffer, 0, 1024);
     strcpy(buffer, "messaggio letto");
@@ -58,10 +72,10 @@ void producerFunction(void* args){
 
   disastrOS_closeMQ(fd);
 
-  int res = disastrOS_destroyMQ(fd);
+  int res = disastrOS_destroyMQ(res_to_open);
   
   while(res == DSOS_ERESOURCEINUSE){
-	  res = disastrOS_destroyMQ(fd);
+	  res = disastrOS_destroyMQ(res_to_open);
   }
 
   disastrOS_exit(0);
@@ -69,12 +83,26 @@ void producerFunction(void* args){
 
 void consumerFunction(void* args){
 
+  int res_to_open;
+
+  if (args != NULL){
+    int* temp = (int*) args;
+    res_to_open = *temp;
+  }
+  else{
+    res_to_open = 0;
+  }
+
+  printf("consumer: %d, resource: %d\n", disastrOS_getpid(), res_to_open);
+
   char buffer[1024];
-  int fd = disastrOS_openMQ(0, DSOS_READ);
+  int fd = disastrOS_openMQ(res_to_open, DSOS_READ);
+
+  int pid = disastrOS_getpid();
 
   for (int i = 0; i < 10; i++){
 
-    printf("-- SONO IL CONSUMER --\n");
+    printf("-- SONO IL CONSUMER %d --\n", pid);
 
     memset(buffer, 0, 1024);
 
@@ -129,10 +157,27 @@ void initFunction(void* args) {
 
   int alive_children = 0;
 
-  disastrOS_spawn(producerFunction, 0);
+  int res0 = 0;
+  int res1 = 1;
+  int res2 = 2;
+
+  disastrOS_spawn(producerFunction, &res0);
   alive_children++;
 
-  disastrOS_spawn(consumerFunction, 0);
+  disastrOS_spawn(consumerFunction, &res0);
+  alive_children++;
+
+  disastrOS_spawn(producerFunction, &res1);
+  alive_children++;
+
+  disastrOS_spawn(consumerFunction, &res1);
+  alive_children++;
+
+
+  disastrOS_spawn(producerFunction, &res2);
+  alive_children++;
+
+  disastrOS_spawn(consumerFunction, &res2);
   alive_children++;
 
   disastrOS_printStatus();
