@@ -91,14 +91,15 @@ void producerFunction(void* args){
 
   int res = disastrOS_destroyMQ(res_to_open);
   
-  if (res == DSOS_ERESOURCEINUSE){
+  /*if (res == DSOS_ERESOURCEINUSE){
 	printf("PRODUCER %d, destruction failed\n", pid);
-  }
-  
-  /*while(res == DSOS_ERESOURCEINUSE){
-	  printf("prova\n");
-	  res = disastrOS_destroyMQ(res_to_open);
   }*/
+  
+  while(res == DSOS_ERESOURCEINUSE){
+	  printf("PRODUCER %d, destruction failed\n", pid);
+	  res = disastrOS_destroyMQ(res_to_open);
+	  disastrOS_sleep((20-disastrOS_getpid())*2);
+  }
 
   disastrOS_exit(0);
 }
