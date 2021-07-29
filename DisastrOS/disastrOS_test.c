@@ -59,7 +59,7 @@ void producerFunction(void* args){
   
   if (fd == DSOS_ERESOURCECREATE){
 	printf("PRODUCER: %d, resource already exists. Opening\n", pid);
-	fd = disastrOS_openMQ(res_to_open, DSOS_READ);
+	fd = disastrOS_openMQ(res_to_open, DSOS_WRITE);
 	printf("%d\n", fd);
   }
 

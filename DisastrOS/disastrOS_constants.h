@@ -43,7 +43,7 @@
 //resources
 #define DSOS_CREATE 0x1
 #define DSOS_READ 0x2
-#define DSOS_WRITE 0x3
+#define DSOS_WRITE 0x8
 #define DSOS_EXCL 0x4
 
 // scheduling
@@ -52,6 +52,8 @@
 
 //message queues
 #define MAX_NUM_MESSAGES 32
+#define MAX_MESSAGE_LEN 1024
+
 #define MAX_NUM_MESSAGEQUEUES 1024
 
 #define RES_MQ 0x1

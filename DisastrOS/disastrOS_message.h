@@ -1,5 +1,4 @@
 #pragma once
-#define MAX_MESSAGE_LEN 1024
 #include "linked_list.h"
 #include "disastrOS_constants.h"
 
