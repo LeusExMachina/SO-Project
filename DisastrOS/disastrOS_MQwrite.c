@@ -14,6 +14,11 @@
 void internal_MQwrite(){
     int fd = running->syscall_args[0];
     char* buffer = (char*) running->syscall_args[1];
+    
+    if (strlen(buffer) > MAX_MESSAGE_LEN){
+		running->syscall_retvalue=DSOS_OUTOFBOUNDS;
+        return;
+	}
 
     Descriptor* des=DescriptorList_byFd(&running->descriptors, fd);
     if (! des){
