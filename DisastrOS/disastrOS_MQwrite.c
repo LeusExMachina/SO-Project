@@ -70,6 +70,12 @@ void internal_MQwrite(){
     }
 
     Message* msg = Message_alloc();
+    
+    if (!msg){
+		running->syscall_retvalue = DSOS_EMQWRITE;
+        return;
+	}
+	
     Message_write(buffer, msg);
 
     List_insert(&mq->messages, mq->messages.last, (ListItem*) msg);

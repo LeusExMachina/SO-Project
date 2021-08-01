@@ -51,7 +51,7 @@
 #define INTERVAL 100 // milliseconds for timer tick
 
 //message queues
-#define MAX_NUM_MESSAGES 32
+#define MAX_NUM_MESSAGES 256
 #define MAX_MESSAGE_LEN 1024
 
 #define MAX_NUM_MESSAGEQUEUES 1024
@@ -63,3 +63,4 @@
 
 #define DSOS_ERESOURCENOMQ -14
 #define DSOS_OUTOFBOUNDS -15
+#define DSOS_EMQWRITE -16
