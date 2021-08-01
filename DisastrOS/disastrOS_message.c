@@ -27,6 +27,8 @@ void Message_init(){
 
 Message* Message_alloc(){
     Message* res = PoolAllocator_getBlock(&_message_allocator);
+    
+    if (!res) return 0;
 
     res->list.prev = 0;
     res->list.next = 0;
